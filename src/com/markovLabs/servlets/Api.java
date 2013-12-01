@@ -14,6 +14,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import com.markovLabs.util.BidProcessor;
+import com.markovLabs.util.JMSClient;
 
 @WebServlet("/bid")
 public class Api extends HttpServlet {
@@ -21,9 +22,11 @@ public class Api extends HttpServlet {
 
 	private static final String USERID_FIELD = "user_id";
 	private static final String OPERATION_FIELD = "op";
-
+	private JMSClient jmsClient;
+	
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
+		jmsClient=new JMSClient();
 	}
 
 	// this method reads a json from the request and then perform the following
@@ -49,7 +52,7 @@ public class Api extends HttpServlet {
 			if (id == null || operation == null) {
 				mesg = "FAIL: JSON string fields are not valid";
 			} else {
-				BidProcessor bidProcessor=new BidProcessor((Integer)id,(Integer)operation,json);
+				BidProcessor bidProcessor=new BidProcessor((Integer)id,(Integer)operation,json,jmsClient);
 				if(!bidProcessor.isValidOperation()){
 					mesg="FAIL: Invalid operation code.";
 				}
@@ -67,6 +70,10 @@ public class Api extends HttpServlet {
 
 		}
 
+	}
+	
+	public void destroy(){
+		jmsClient.destroyClient();
 	}
 
 }

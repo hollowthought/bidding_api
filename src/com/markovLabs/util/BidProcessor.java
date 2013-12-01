@@ -10,16 +10,18 @@ public class BidProcessor implements Runnable{
 	private Integer id;
 	private Integer operation;
 	private JSONObject json;
+	private JMSClient jmsClient;
 	
 	private static final int CREATE_OP = 0;
 	private static final int DELETE_OP = 1;
 	private static final int PROCESS_BID = 2;
 	private static final String POOL_URL="http://localhost:8081/bid_pool_mngr/handler";
 	
-	public BidProcessor(Integer id,Integer operation, JSONObject json){
+	public BidProcessor(Integer id,Integer operation, JSONObject json, JMSClient jmsClient){
 		this.id=id;
 		this.operation=operation;
 		this.json=json;
+		this.jmsClient=jmsClient;
 	}
 	
 	public boolean isValidOperation(){
@@ -40,8 +42,7 @@ public class BidProcessor implements Runnable{
 	
 
 	private void processBid(JSONObject json) {
-		// TODO Auto-generated method stub
-
+		jmsClient.sendMessage(id,(Double) json.get("bid"));
 	}
 
 	private void deleteBid(Integer id) {

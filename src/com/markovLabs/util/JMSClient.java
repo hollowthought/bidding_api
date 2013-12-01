@@ -1,4 +1,6 @@
 package com.markovLabs.util;
+import java.util.Properties;
+
 import javax.jms.*;
 import javax.naming.*;
 
@@ -12,6 +14,11 @@ public class JMSClient {
 	
 	public JMSClient(){
 		try {
+			Properties env = new Properties(); 
+			env.put(Context.SECURITY_PRINCIPAL, "system");
+			env.put(Context.SECURITY_CREDENTIALS, "manager"); 
+			env.put(Context.INITIAL_CONTEXT_FACTORY,"org.apache.activemq.jndi.ActiveMQInitialContextFactory");
+			env.put(Context.PROVIDER_URL, "tcp://localhost:61616");
 			Context ctx = new InitialContext();
 			QueueConnectionFactory qFactory = (QueueConnectionFactory) ctx.lookup(QUEUE_CONNECTION);
 			qConnect = qFactory.createQueueConnection();

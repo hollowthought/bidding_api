@@ -47,7 +47,7 @@ public class Api extends HttpServlet {
 			mesg = "FAIL: No valid JSON string was received.";
 		} else {
 			Object id = json.get(USERID_FIELD);
-			Object operation = (Integer) json.get(OPERATION_FIELD);
+			Object operation = json.get(OPERATION_FIELD);
 
 			if (id == null || operation == null) {
 				mesg = "FAIL: JSON string fields are not valid";

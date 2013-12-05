@@ -29,7 +29,7 @@ public class IdServer  extends HttpServlet {
 		super.init(config);
 	}
 	
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, java.io.IOException {
 		BufferedReader reader = req.getReader();
 		StringBuilder buf = new StringBuilder();
@@ -42,8 +42,8 @@ public class IdServer  extends HttpServlet {
 		if (json == null) {
 			mesg.append("FAIL: No valid JSON string was received.");
 		} else {
-			Integer id =(Integer) json.get(USERID_FIELD);
-			Integer operation = (Integer)json.get(OPERATION_FIELD);
+			Long id = (Long) json.get(USERID_FIELD);
+			Integer operation = ((Long)json.get(OPERATION_FIELD)).intValue();
 			switch(operation){
 				case 0:mesg.append(createID());break;
 				case 1:mesg.append(search(id));break;
@@ -59,7 +59,7 @@ public class IdServer  extends HttpServlet {
 
 	}
 	
-	private String search(Integer id){
+	private String search(Long id){
 		return Boolean.toString(ids.contains(id));
 	}
 	

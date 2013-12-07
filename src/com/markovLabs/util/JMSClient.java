@@ -5,8 +5,8 @@ import javax.jms.*;
 import javax.naming.*;
 
 public class JMSClient {
-	private static final String QUEUE_NAME="";
-	private static final String QUEUE_CONNECTION="";
+	private static final String QUEUE_NAME="java:jboss/exported/jms/queue/test";
+	private static final String QUEUE_CONNECTION="java:/ConnectionFactory";
 	
 	private QueueConnection qConnect = null;
 	private QueueSession qSession = null; 
@@ -14,11 +14,11 @@ public class JMSClient {
 	
 	public JMSClient(){
 		try {
-			Properties env = new Properties(); 
+		/*	Properties env = new Properties(); 
 			env.put(Context.SECURITY_PRINCIPAL, "system");
 			env.put(Context.SECURITY_CREDENTIALS, "manager"); 
 			env.put(Context.INITIAL_CONTEXT_FACTORY,"org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-			env.put(Context.PROVIDER_URL, "tcp://localhost:61616");
+			env.put(Context.PROVIDER_URL, "tcp://localhost:61616"); */
 			Context ctx = new InitialContext();
 			QueueConnectionFactory qFactory = (QueueConnectionFactory) ctx.lookup(QUEUE_CONNECTION);
 			qConnect = qFactory.createQueueConnection();

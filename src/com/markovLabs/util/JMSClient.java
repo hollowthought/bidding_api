@@ -1,8 +1,14 @@
 package com.markovLabs.util;
-import java.util.Properties;
-
-import javax.jms.*;
-import javax.naming.*;
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.Queue;
+import javax.jms.QueueConnection;
+import javax.jms.QueueConnectionFactory;
+import javax.jms.QueueSender;
+import javax.jms.QueueSession;
+import javax.jms.Session;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 
 public class JMSClient {
 	private static final String QUEUE_NAME="java:jboss/exported/jms/queue/tst";
@@ -14,11 +20,6 @@ public class JMSClient {
 	
 	public JMSClient(){
 		try {
-		/*	Properties env = new Properties(); 
-			env.put(Context.SECURITY_PRINCIPAL, "system");
-			env.put(Context.SECURITY_CREDENTIALS, "manager"); 
-			env.put(Context.INITIAL_CONTEXT_FACTORY,"org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-			env.put(Context.PROVIDER_URL, "tcp://localhost:61616"); */
 			Context ctx = new InitialContext();
 			QueueConnectionFactory qFactory = (QueueConnectionFactory) ctx.lookup(QUEUE_CONNECTION);
 			qConnect = qFactory.createQueueConnection();

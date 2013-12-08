@@ -42,29 +42,31 @@ public class Api extends HttpServlet {
 		}
 		JSONObject json = (JSONObject) JSONValue.parse(buf.toString());
 
-		String mesg = "SUCCESS"; // message returned back to the client
+		StringBuilder mesg =new StringBuilder("{resp:");  // message returned back to the client
 		if (json == null) {
-			mesg = "FAIL: No valid JSON string was received.";
+			mesg.append("FAIL: No valid JSON string was received.");
 		} else {
 			Object id = json.get(USERID_FIELD);
 			Object operation = json.get(OPERATION_FIELD);
 
 			if (id == null || operation == null) {
-				mesg = "FAIL: JSON string fields are not valid";
+				mesg.append("FAIL: JSON string fields are not valid");
 			} else {
 				BidProcessor bidProcessor=new BidProcessor((Integer)id,(Integer)operation,json,jmsClient);
 				if(!bidProcessor.isValidOperation()){
-					mesg="FAIL: Invalid operation code.";
+					mesg.append("FAIL: Invalid operation code.");
 				}
 				else{
 					Thread runner=new Thread(bidProcessor);
 					runner.start();
+					mesg.append("SUCCESS");
 				}
 			}
 		}
+		mesg.append("}");
 		PrintWriter printer = resp.getWriter();
 		try {
-			printer.print(mesg);
+			printer.print(mesg.toString());
 			printer.close();
 		} catch (Exception e) {
 

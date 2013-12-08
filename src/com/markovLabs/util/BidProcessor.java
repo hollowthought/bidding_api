@@ -15,7 +15,7 @@ public class BidProcessor implements Runnable{
 	private static final int CREATE_OP = 0;
 	private static final int DELETE_OP = 1;
 	private static final int PROCESS_BID = 2;
-	private static final String POOL_URL="http://localhost:8081/bid_pool_mngr/handler";
+	private static final String POOL_URL="http://localhost:8080/bid_pool_mngr/handler";
 	
 	public BidProcessor(Integer id,Integer operation, JSONObject json, JMSClient jmsClient){
 		this.id=id;
@@ -53,6 +53,7 @@ public class BidProcessor implements Runnable{
 		sendRequestToPool(id,CREATE_OP);
 	}
 	
+	//it can be improved by using connection pooling 
 	private void sendRequestToPool(Integer dat,int code){
 		try {
 			URL req=new URL(POOL_URL);

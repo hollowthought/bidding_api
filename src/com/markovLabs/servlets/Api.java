@@ -42,7 +42,7 @@ public class Api extends HttpServlet {
 		}
 		JSONObject json = (JSONObject) JSONValue.parse(buf.toString());
 
-		StringBuilder mesg =new StringBuilder("{resp:");  // message returned back to the client
+		StringBuilder mesg =new StringBuilder("{resp:'");  // message returned back to the client
 		if (json == null) {
 			mesg.append("FAIL: No valid JSON string was received.");
 		} else {
@@ -63,7 +63,7 @@ public class Api extends HttpServlet {
 				}
 			}
 		}
-		mesg.append("}");
+		mesg.append("'}");
 		PrintWriter printer = resp.getWriter();
 		try {
 			printer.print(mesg.toString());

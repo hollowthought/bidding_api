@@ -37,6 +37,7 @@ public class JMSClient {
 			MapMessage msg = qSession.createMapMessage();
 			msg.setInt("id",id);
 			msg.setDouble("bid", bid);
+			msg.setInt("mgmt", 0);
 			msg.setJMSReplyTo(queue);
 			QueueSender qSender = qSession.createSender(queue); 
 			qSender.send(msg);

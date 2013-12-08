@@ -5,7 +5,7 @@ import javax.jms.*;
 import javax.naming.*;
 
 public class JMSClient {
-	private static final String QUEUE_NAME="java:jboss/exported/jms/queue/test";
+	private static final String QUEUE_NAME="java:jboss/exported/jms/queue/tst";
 	private static final String QUEUE_CONNECTION="java:/ConnectionFactory";
 	
 	private QueueConnection qConnect = null;

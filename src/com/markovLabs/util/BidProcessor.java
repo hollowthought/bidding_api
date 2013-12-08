@@ -1,9 +1,5 @@
 package com.markovLabs.util;
 
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import org.json.simple.JSONObject;
 
 public class BidProcessor implements Runnable{
@@ -15,7 +11,7 @@ public class BidProcessor implements Runnable{
 	private static final int CREATE_OP = 0;
 	private static final int DELETE_OP = 1;
 	private static final int PROCESS_BID = 2;
-	private static final String POOL_URL="http://localhost:8080/bid_pool_mngr/handler";
+
 	
 	public BidProcessor(Integer id,Integer operation, JSONObject json, JMSClient jmsClient){
 		this.id=id;
@@ -46,28 +42,10 @@ public class BidProcessor implements Runnable{
 	}
 
 	private void deleteBid(Integer id) {
-		sendRequestToPool(id,DELETE_OP);
+		NetUtil.sendRequestToPool(id,DELETE_OP);
 	}
 
 	private void createBid(Integer id) {
-		sendRequestToPool(id,CREATE_OP);
+		NetUtil.sendRequestToPool(id,CREATE_OP);
 	}
-	
-	//it can be improved by using connection pooling 
-	private void sendRequestToPool(Integer dat,int code){
-		try {
-			URL req=new URL(POOL_URL);
-			HttpURLConnection con=(HttpURLConnection) req.openConnection();
-			OutputStream out=con.getOutputStream();
-			out.write(code);
-			out.write(id);
-			out.flush();
-			out.close();
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-
 }

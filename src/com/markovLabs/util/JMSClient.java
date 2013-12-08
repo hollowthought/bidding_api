@@ -10,6 +10,8 @@ import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
+import com.markovLabs.bid.Bid;
+
 public class JMSClient {
 	private static final String QUEUE_NAME="java:jboss/exported/jms/queue/tst";
 	private static final String QUEUE_CONNECTION="java:/ConnectionFactory";
@@ -35,8 +37,8 @@ public class JMSClient {
 	public void sendMessage(Integer id, double bid){
 		try{
 			MapMessage msg = qSession.createMapMessage();
-			msg.setInt("id",id);
-			msg.setDouble("bid", bid);
+			msg.setInt(Bid.ID_FIELD_NAME,id);
+			msg.setDouble(Bid.BID_FIELD_NAME, bid);
 			msg.setInt("mgmt", 0);
 			msg.setJMSReplyTo(queue);
 			QueueSender qSender = qSession.createSender(queue); 

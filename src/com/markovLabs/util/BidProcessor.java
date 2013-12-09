@@ -2,14 +2,14 @@ package com.markovLabs.util;
 
 import org.json.simple.JSONObject;
 
+import com.markovLabs.servlets.PoolOperationsHandler;
+
 public class BidProcessor implements Runnable{
 	private Integer id;
 	private Integer operation;
 	private JSONObject json;
 	private JMSClient jmsClient;
 	
-	private static final int CREATE_OP = 0;
-	private static final int DELETE_OP = 1;
 	private static final int PROCESS_BID = 2;
 
 	
@@ -21,7 +21,7 @@ public class BidProcessor implements Runnable{
 	}
 	
 	public boolean isValidOperation(){
-		if(CREATE_OP==operation || DELETE_OP==operation || PROCESS_BID==operation){
+		if(PoolOperationsHandler.CREATE_OP==operation || PoolOperationsHandler.DELETE_OP==operation || PROCESS_BID==operation){
 			return true;
 		}
 		return false;
@@ -30,8 +30,8 @@ public class BidProcessor implements Runnable{
 	@Override
 	public void run() {
 		switch (operation) {
-			case CREATE_OP:createBid(id);break;
-			case DELETE_OP:deleteBid(id);break;
+			case PoolOperationsHandler.CREATE_OP:createBid(id);break;
+			case PoolOperationsHandler.DELETE_OP:deleteBid(id);break;
 			case PROCESS_BID:processBid(json);break;
 		}
 	}
@@ -42,10 +42,10 @@ public class BidProcessor implements Runnable{
 	}
 
 	private void deleteBid(Integer id) {
-		NetUtil.sendRequestToPool(id,DELETE_OP);
+		NetUtil.sendRequestToPool(id,PoolOperationsHandler.DELETE_OP);
 	}
 
 	private void createBid(Integer id) {
-		NetUtil.sendRequestToPool(id,CREATE_OP);
+		NetUtil.sendRequestToPool(id,PoolOperationsHandler.CREATE_OP);
 	}
 }

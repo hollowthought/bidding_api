@@ -38,7 +38,7 @@ public class IdServer  extends HttpServlet {
 			buf.append(line);
 		}
 		JSONObject json = (JSONObject) JSONValue.parse(buf.toString());
-		StringBuilder mesg=new StringBuilder("{'resp':'");
+		StringBuilder mesg=new StringBuilder("{resp:'");
 		if (json == null) {
 			mesg.append("FAIL: No valid JSON string was received.");
 		} else {

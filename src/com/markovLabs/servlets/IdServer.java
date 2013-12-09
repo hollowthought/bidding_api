@@ -38,18 +38,18 @@ public class IdServer  extends HttpServlet {
 			buf.append(line);
 		}
 		JSONObject json = (JSONObject) JSONValue.parse(buf.toString());
-		StringBuilder mesg=new StringBuilder("{resp:'");
+		StringBuilder mesg=new StringBuilder("{\"resp\":\"");
 		if (json == null) {
 			mesg.append("FAIL: No valid JSON string was received.");
 		} else {
-			Long id = (Long) json.get(USERID_FIELD);
+			Integer id = ((Long) json.get(USERID_FIELD)).intValue();
 			Integer operation = ((Long)json.get(OPERATION_FIELD)).intValue();
 			switch(operation){
 				case 0:mesg.append(createID());break;
 				case 1:mesg.append(search(id));break;
 			}
 		}
-		mesg.append("'}");
+		mesg.append("\"}");
 		PrintWriter printer = resp.getWriter();
 		try {
 			printer.print(mesg.toString());
@@ -60,7 +60,7 @@ public class IdServer  extends HttpServlet {
 
 	}
 	
-	private String search(Long id){
+	private String search(Integer id){
 		return Boolean.toString(ids.contains(id));
 	}
 	

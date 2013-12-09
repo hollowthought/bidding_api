@@ -42,7 +42,7 @@ public class IdServer  extends HttpServlet {
 		if (json == null) {
 			mesg.append("FAIL: No valid JSON string was received.");
 		} else {
-			Long id = (Long) json.get(USERID_FIELD);
+			Integer id = ((Long) json.get(USERID_FIELD)).intValue();
 			Integer operation = ((Long)json.get(OPERATION_FIELD)).intValue();
 			switch(operation){
 				case 0:mesg.append(createID());break;
@@ -60,7 +60,7 @@ public class IdServer  extends HttpServlet {
 
 	}
 	
-	private String search(Long id){
+	private String search(Integer id){
 		return Boolean.toString(ids.contains(id));
 	}
 	

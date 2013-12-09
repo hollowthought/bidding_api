@@ -3,6 +3,7 @@ package com.markovLabs.tests;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.markovLabs.bid.Bid;
 import com.markovLabs.util.JMSClient;
 
 public class TestJMSClient {
@@ -16,6 +17,7 @@ public class TestJMSClient {
 	
 	@Test
 	public void test0(){
-		jmsClient.sendMessage(1,10,101.0);
+		Bid bid=new Bid(1,10,101.0);
+		jmsClient.sendMessage(bid);
 	}
 }

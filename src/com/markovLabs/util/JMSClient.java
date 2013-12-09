@@ -34,12 +34,12 @@ public class JMSClient {
 		}
 	}
 	
-	public void sendMessage(Integer user_id,Integer bid_id, double bid){
+	public void sendMessage(Bid bid){
 		try{
 			MapMessage msg = qSession.createMapMessage();
-			msg.setInt(Bid.ID_FIELD_NAME,user_id);
-			msg.setInt(Bid.BID_FIELD_NAME, bid_id);
-			msg.setDouble(Bid.BID_FIELD_NAME_VALUE, bid);
+			msg.setInt(Bid.ID_FIELD_NAME,bid.getUserId());
+			msg.setInt(Bid.BID_FIELD_NAME, bid.getBid_id());
+			msg.setDouble(Bid.BID_FIELD_NAME_VALUE, bid.getBidValue());
 			msg.setInt("mgmt", 0);
 			msg.setJMSReplyTo(queue);
 			QueueSender qSender = qSession.createSender(queue); 

@@ -2,6 +2,8 @@ package com.markovLabs.servlets;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -13,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import com.markovLabs.bid.Bid;
 import com.markovLabs.util.BidProcessor;
 import com.markovLabs.util.JMSClient;
 
@@ -24,9 +27,12 @@ public class Api extends HttpServlet {
 	private static final String OPERATION_FIELD = "op";
 	private JMSClient jmsClient;
 	
+	private int counter=0;
+	private final Set<Integer> ids=new HashSet<Integer>();
+
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		jmsClient=new JMSClient();
+		jmsClient = new JMSClient();
 	}
 
 	// this method reads a json from the request and then perform the following
@@ -42,25 +48,37 @@ public class Api extends HttpServlet {
 		}
 		JSONObject json = (JSONObject) JSONValue.parse(buf.toString());
 
-		StringBuilder mesg =new StringBuilder("{\"resp\":\"");  // message returned back to the client
+		StringBuilder mesg = new StringBuilder("{\"resp\":\""); // message returned back to the client
 		if (json == null) {
 			mesg.append("FAIL: No valid JSON string was received.");
 		} else {
 			Object user_id = json.get(IdServer.USERID_FIELD);
-			Object bid_id = json.get(BID_ID_FIELD);
 			Object operation = json.get(OPERATION_FIELD);
 
-			if (user_id == null || operation == null || bid_id==null) {
+			if (user_id == null || operation == null) {
 				mesg.append("FAIL: JSON string fields are not valid");
 			} else {
-				BidProcessor bidProcessor=new BidProcessor((Integer)bid_id,(Integer)operation,(Integer)user_id,json,jmsClient);
-				if(!bidProcessor.isValidOperation()){
+				Bid bid = null;
+				Integer op = (Integer) operation;
+				if (BidProcessor.isValidOperation(op)) {
+					if (PoolOperationsHandler.CREATE_OP == op) {
+						Integer bid_id = generateUniqueID();
+						bid = new Bid((Integer) user_id, bid_id);
+						boostrapBidProcessor(bid,op);
+						mesg.append(bid_id);
+					} else {
+						//TODO: use RMI to get the value from the pool
+						if (PoolOperationsHandler.SEARCH_OP == op) {
+							Integer bid_id=((Long)json.get(BID_ID_FIELD)).intValue();
+							mesg.append(Boolean.toString(ids.contains(bid_id)));
+						} else {
+							bid = new Bid((Integer) user_id,((Long) json.get(BID_ID_FIELD)).intValue(),(Double) json.get("bid"));
+							boostrapBidProcessor(bid,op);
+							mesg.append("SUCCESS");
+						}
+					}
+				} else {
 					mesg.append("FAIL: Invalid operation code.");
-				}
-				else{
-					Thread runner=new Thread(bidProcessor);
-					runner.start();
-					mesg.append("SUCCESS");
 				}
 			}
 		}
@@ -75,7 +93,18 @@ public class Api extends HttpServlet {
 
 	}
 	
-	public void destroy(){
+	private void boostrapBidProcessor(Bid bid, Integer op){
+		Thread runner = new Thread(new BidProcessor(bid,jmsClient, op));
+		runner.start();
+	}
+
+	private synchronized Integer generateUniqueID() {
+		counter++;
+		ids.add(new Integer(counter));
+		return counter;
+	}
+
+	public void destroy() {
 		jmsClient.destroyClient();
 	}
 

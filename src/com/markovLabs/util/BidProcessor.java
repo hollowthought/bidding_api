@@ -1,28 +1,21 @@
 package com.markovLabs.util;
 
-import org.json.simple.JSONObject;
-
+import com.markovLabs.bid.Bid;
 import com.markovLabs.servlets.PoolOperationsHandler;
 
 public class BidProcessor implements Runnable{
-	private Integer bid_id;
-	private Integer operation;
-	private JSONObject json;
+	private Bid bid;
 	private JMSClient jmsClient;
-	
+	private Integer operation;
 	private static final int PROCESS_BID = 2;
-	private Integer user_id;
 
 	
-	public BidProcessor(Integer id,Integer operation, Integer user_id, JSONObject json, JMSClient jmsClient){
-		this.bid_id=id;
+	public BidProcessor(Bid bid, JMSClient jmsClient2,Integer operation) {
 		this.operation=operation;
-		this.json=json;
-		this.jmsClient=jmsClient;
-		this.user_id=user_id;
+		this.bid=bid;
 	}
-	
-	public boolean isValidOperation(){
+
+	public static boolean isValidOperation(Integer operation){
 		if(PoolOperationsHandler.CREATE_OP==operation || PoolOperationsHandler.DELETE_OP==operation || PROCESS_BID==operation){
 			return true;
 		}
@@ -32,22 +25,21 @@ public class BidProcessor implements Runnable{
 	@Override
 	public void run() {
 		switch (operation) {
-			case PoolOperationsHandler.CREATE_OP:createBid(bid_id,user_id);break;
-			case PoolOperationsHandler.DELETE_OP:deleteBid(bid_id);break;
-			case PROCESS_BID:processBid(json);break;
+			case PoolOperationsHandler.CREATE_OP:createBid();break;
+			case PoolOperationsHandler.DELETE_OP:deleteBid();break;
+			case PROCESS_BID:processBid();break;
 		}
-	}
-	
+	}	
 
-	private void processBid(JSONObject json) {
-		jmsClient.sendMessage(user_id,bid_id,(Double) json.get("bid"));
-	}
-
-	private void deleteBid(Integer bid_id) {
-		NetUtil.sendRequestToPool(null,bid_id,PoolOperationsHandler.DELETE_OP);
+	private void processBid() {
+		jmsClient.sendMessage(bid);
 	}
 
-	private void createBid(Integer bid_id,Integer user_id) {
-		NetUtil.sendRequestToPool(user_id,bid_id,PoolOperationsHandler.CREATE_OP);
+	private void deleteBid() {
+		NetUtil.sendRequestToPool(null,bid.getBid_id(),PoolOperationsHandler.DELETE_OP);
+	}
+
+	private void createBid() {
+		NetUtil.sendRequestToPool(bid.getUserId(),bid.getBid_id(),PoolOperationsHandler.CREATE_OP);
 	}
 }

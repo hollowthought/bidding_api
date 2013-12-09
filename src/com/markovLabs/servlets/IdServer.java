@@ -64,11 +64,9 @@ public class IdServer  extends HttpServlet {
 		return Boolean.toString(ids.contains(id));
 	}
 	
-	private Integer createID(){
-		synchronized(this){
-			counter++;
-			ids.add(new Integer(counter));
-		}
+	private synchronized Integer createID(){
+		counter++;
+		ids.add(new Integer(counter));
 		return counter;
 	}
 	

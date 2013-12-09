@@ -23,7 +23,7 @@ public class IdServer  extends HttpServlet {
 	private int counter=0;
 	private final Set<Integer> ids=new HashSet<Integer>();
 	
-	private static String USERID_FIELD="id";
+	public static String USERID_FIELD="user_id";
 
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);

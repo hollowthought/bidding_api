@@ -20,7 +20,7 @@ import com.markovLabs.util.JMSClient;
 public class Api extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	private static final String USERID_FIELD = "user_id";
+	public static final String BID_ID_FIELD = "bid_id";
 	private static final String OPERATION_FIELD = "op";
 	private JMSClient jmsClient;
 	
@@ -46,13 +46,14 @@ public class Api extends HttpServlet {
 		if (json == null) {
 			mesg.append("FAIL: No valid JSON string was received.");
 		} else {
-			Object id = json.get(USERID_FIELD);
+			Object user_id = json.get(IdServer.USERID_FIELD);
+			Object bid_id = json.get(BID_ID_FIELD);
 			Object operation = json.get(OPERATION_FIELD);
 
-			if (id == null || operation == null) {
+			if (user_id == null || operation == null || bid_id==null) {
 				mesg.append("FAIL: JSON string fields are not valid");
 			} else {
-				BidProcessor bidProcessor=new BidProcessor((Integer)id,(Integer)operation,json,jmsClient);
+				BidProcessor bidProcessor=new BidProcessor((Integer)bid_id,(Integer)operation,(Integer)user_id,json,jmsClient);
 				if(!bidProcessor.isValidOperation()){
 					mesg.append("FAIL: Invalid operation code.");
 				}

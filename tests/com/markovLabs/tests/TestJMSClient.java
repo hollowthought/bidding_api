@@ -16,6 +16,6 @@ public class TestJMSClient {
 	
 	@Test
 	public void test0(){
-		jmsClient.sendMessage(10,101.0);
+		jmsClient.sendMessage(1,10,101.0);
 	}
 }

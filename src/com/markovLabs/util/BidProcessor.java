@@ -5,19 +5,21 @@ import org.json.simple.JSONObject;
 import com.markovLabs.servlets.PoolOperationsHandler;
 
 public class BidProcessor implements Runnable{
-	private Integer id;
+	private Integer bid_id;
 	private Integer operation;
 	private JSONObject json;
 	private JMSClient jmsClient;
 	
 	private static final int PROCESS_BID = 2;
+	private Integer user_id;
 
 	
-	public BidProcessor(Integer id,Integer operation, JSONObject json, JMSClient jmsClient){
-		this.id=id;
+	public BidProcessor(Integer id,Integer operation, Integer user_id, JSONObject json, JMSClient jmsClient){
+		this.bid_id=id;
 		this.operation=operation;
 		this.json=json;
 		this.jmsClient=jmsClient;
+		this.user_id=user_id;
 	}
 	
 	public boolean isValidOperation(){
@@ -30,22 +32,22 @@ public class BidProcessor implements Runnable{
 	@Override
 	public void run() {
 		switch (operation) {
-			case PoolOperationsHandler.CREATE_OP:createBid(id);break;
-			case PoolOperationsHandler.DELETE_OP:deleteBid(id);break;
+			case PoolOperationsHandler.CREATE_OP:createBid(bid_id,user_id);break;
+			case PoolOperationsHandler.DELETE_OP:deleteBid(bid_id);break;
 			case PROCESS_BID:processBid(json);break;
 		}
 	}
 	
 
 	private void processBid(JSONObject json) {
-		jmsClient.sendMessage(id,(Double) json.get("bid"));
+		jmsClient.sendMessage(user_id,bid_id,(Double) json.get("bid"));
 	}
 
-	private void deleteBid(Integer id) {
-		NetUtil.sendRequestToPool(id,PoolOperationsHandler.DELETE_OP);
+	private void deleteBid(Integer bid_id) {
+		NetUtil.sendRequestToPool(null,bid_id,PoolOperationsHandler.DELETE_OP);
 	}
 
-	private void createBid(Integer id) {
-		NetUtil.sendRequestToPool(id,PoolOperationsHandler.CREATE_OP);
+	private void createBid(Integer bid_id,Integer user_id) {
+		NetUtil.sendRequestToPool(user_id,bid_id,PoolOperationsHandler.CREATE_OP);
 	}
 }

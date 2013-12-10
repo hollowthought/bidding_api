@@ -37,7 +37,7 @@ public class Api extends HttpServlet {
 
 	// this method reads a json from the request and then perform the following
 	// operations: create, delete bid and proccess bid
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, java.io.IOException {
 
 		BufferedReader reader = req.getReader();
@@ -59,11 +59,11 @@ public class Api extends HttpServlet {
 				mesg.append("FAIL: JSON string fields are not valid");
 			} else {
 				Bid bid = null;
-				Integer op = (Integer) operation;
+				Integer op = ((Long) operation).intValue();
 				if (BidProcessor.isValidOperation(op)) {
 					if (PoolOperationsHandler.CREATE_OP == op) {
 						Integer bid_id = generateUniqueID();
-						bid = new Bid((Integer) user_id, bid_id);
+						bid = new Bid(((Long) user_id).intValue(), bid_id);
 						boostrapBidProcessor(bid,op);
 						mesg.append(bid_id);
 					} else {

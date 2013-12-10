@@ -1,7 +1,11 @@
 package com.markovLabs.servlets;
 
 import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,8 +19,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-import com.markovLabs.bid.Bid;
 import com.markovLabs.util.BidProcessor;
+import com.markovLabs.util.NetUtil;
+import com.markovLabs.bid.Bid;
 import com.markovLabs.util.JMSClient;
 
 @WebServlet("/bid")
@@ -37,7 +42,7 @@ public class Api extends HttpServlet {
 
 	// this method reads a json from the request and then perform the following
 	// operations: create, delete bid and proccess bid
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, java.io.IOException {
 
 		BufferedReader reader = req.getReader();
@@ -59,18 +64,23 @@ public class Api extends HttpServlet {
 				mesg.append("FAIL: JSON string fields are not valid");
 			} else {
 				Bid bid = null;
-				Integer op = (Integer) operation;
+				Integer op = ((Long) operation).intValue();
 				if (BidProcessor.isValidOperation(op)) {
 					if (PoolOperationsHandler.CREATE_OP == op) {
 						Integer bid_id = generateUniqueID();
-						bid = new Bid((Integer) user_id, bid_id);
+						bid = new Bid(((Long) user_id).intValue(), bid_id);
 						boostrapBidProcessor(bid,op);
 						mesg.append(bid_id);
 					} else {
 						//TODO: use RMI to get the value from the pool
 						if (PoolOperationsHandler.SEARCH_OP == op) {
 							Integer bid_id=((Long)json.get(BID_ID_FIELD)).intValue();
-							mesg.append(Boolean.toString(ids.contains(bid_id)));
+							boolean id_exist=ids.contains(bid_id);
+							mesg.append(Boolean.toString(id_exist));
+							if(id_exist){
+								mesg.append("\",\"bidValue\":\"");
+								mesg.append(getBidValue(bid_id));
+							}
 						} else {
 							bid = new Bid((Integer) user_id,((Long) json.get(BID_ID_FIELD)).intValue(),(Double) json.get("bid"));
 							boostrapBidProcessor(bid,op);
@@ -93,6 +103,24 @@ public class Api extends HttpServlet {
 
 	}
 	
+	private String getBidValue(Integer bid_id) {
+		try {
+			URL req=new URL(NetUtil.POOL_URL+"?s=1");
+			HttpURLConnection con=(HttpURLConnection) req.openConnection();
+			OutputStream out=con.getOutputStream();
+			out.write(bid_id);
+			out.flush();
+			BufferedReader reader=new BufferedReader(new InputStreamReader(con.getInputStream()));
+			String result=reader.readLine();
+			out.close();
+			return result;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	private void boostrapBidProcessor(Bid bid, Integer op){
 		Thread runner = new Thread(new BidProcessor(bid,jmsClient, op));
 		runner.start();
